@@ -568,6 +568,11 @@ angular.module('openlayers-directive').directive('olPath', ["$log", "$q", "olMap
                         label = createOverlay(element, extent);
                         map.addOverlay(label);
                     }
+
+                    if (attrs.center) {
+                        var extentLayer = layer.getSource().getExtent();
+                        map.getView().fitExtent(extentLayer, map.getSize());
+                    }
                     return;
                 }
             });
