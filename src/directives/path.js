@@ -57,8 +57,10 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     }
 
                     if (attrs.center) {
-                        var extentLayer = layer.getSource().getExtent();
-                        map.getView().fitExtent(extentLayer, map.getSize());
+                        if (attrs.center === 'true') {
+                            var extentLayer = layer.getSource().getExtent();
+                            map.getView().fit(extentLayer, map.getSize());
+                        }
                     }
                     return;
                 }
