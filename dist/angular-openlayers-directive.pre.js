@@ -541,40 +541,71 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                 insertLayer(layerCollection, layerCollection.getLength(), layer);
                 var label;
 
-                scope.$on('$destroy', function() {
+                var removePath = function() {
                     if (label) {
                         map.removeOverlay(label);
                     }
                     map.removeLayer(layer);
                     removeLayer(layerCollection, layer.index);
+                };
 
-                });
-
-                if (isDefined(attrs.coords)) {
-                    var proj = attrs.proj || 'EPSG:4326';
-                    var coords = JSON.parse(attrs.coords);
-                    var data = {
-                        type: 'Polygon',
+                var createPath = function(source) {
+                    var proj = source.proj || 'EPSG:4326';
+                    var coords = source.coords;
+                    var type = source.type || 'Polygon';
+                    scope.data = {
+                        type: type,
                         coords: coords,
                         projection: proj,
                         style: mapDefaults.styles.path
                     };
-                    var feature = createFeature(data, viewProjection);
+                    var feature = createFeature(scope.data, viewProjection);
                     layer.getSource().addFeature(feature);
 
-                    if (attrs.message) {
-                        scope.message = attrs.message;
+                    if (source.message) {
+                        scope.message = source.message;
                         var extent = feature.getGeometry().getExtent();
                         label = createOverlay(element, extent);
                         map.addOverlay(label);
                     }
 
-                    if (attrs.center) {
-                        if (attrs.center === 'true') {
+                    if (source.center) {
+                        if (source.center === 'auto') {
                             var extentLayer = layer.getSource().getExtent();
                             map.getView().fit(extentLayer, map.getSize());
                         }
                     }
+                };
+
+                scope.$on('$destroy', function() {
+                    removePath();
+                });
+
+                scope.$watch('properties', function(properties) {
+                    console.log('watch');
+                    if (!isDefined(properties)) {
+                        return;
+                    }
+                    if (!isDefined(properties.type)) {
+                        return;
+                    }
+                    if (!isDefined(scope.data)) {
+                        createPath(properties);
+                        return;
+                    }
+                });
+
+                scope.$watch('properties.coords', function(coords, oldCoords) {
+                    console.log('watch Coords');
+                    if (coords !== oldCoords) {
+                        console.log('Update Coords');
+                        scope.data.coords = coords;
+                    }
+                });
+
+                if (isDefined(attrs.coords)) {
+                    attrs.coords = JSON.parse(attrs.coords);
+                    createPath(attrs);
                     return;
                 }
             });
@@ -1974,6 +2005,9 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
             switch (data.type) {
                 case 'Polygon':
                     geometry = new ol.geom.Polygon(data.coords);
+                    break;
+                case 'LineString':
+                    geometry = new ol.geom.LineString(data.coords);
                     break;
                 default:
                     if (isDefined(data.coord) && data.projection === 'pixel') {
