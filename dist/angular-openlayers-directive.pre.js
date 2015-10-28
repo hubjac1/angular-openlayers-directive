@@ -582,7 +582,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                 });
 
                 scope.$watch('properties', function(properties) {
-                    console.log('watch');
                     if (!isDefined(properties)) {
                         return;
                     }
@@ -592,14 +591,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                     if (!isDefined(scope.data)) {
                         createPath(properties);
                         return;
-                    }
-                });
-
-                scope.$watch('properties.coords', function(coords, oldCoords) {
-                    console.log('watch Coords');
-                    if (coords !== oldCoords) {
-                        console.log('Update Coords');
-                        scope.data.coords = coords;
                     }
                 });
 
@@ -2008,6 +1999,9 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
                     break;
                 case 'LineString':
                     geometry = new ol.geom.LineString(data.coords);
+                    break;
+                case 'MultiLineString':
+                    geometry = new ol.geom.MultiLineString(data.coords);
                     break;
                 default:
                     if (isDefined(data.coord) && data.projection === 'pixel') {

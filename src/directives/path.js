@@ -69,7 +69,6 @@ angular.module('openlayers-directive').directive('olPath', function($log, $q, ol
                 });
 
                 scope.$watch('properties', function(properties) {
-                    console.log('watch');
                     if (!isDefined(properties)) {
                         return;
                     }
