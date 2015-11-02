@@ -845,6 +845,12 @@ angular.module('openlayers-directive').factory('olHelpers', function($q, $log, $
                 case 'Polygon':
                     geometry = new ol.geom.Polygon(data.coords);
                     break;
+                case 'LineString':
+                    geometry = new ol.geom.LineString(data.coords);
+                    break;
+                case 'MultiLineString':
+                    geometry = new ol.geom.MultiLineString(data.coords);
+                    break;
                 default:
                     if (isDefined(data.coord) && data.projection === 'pixel') {
                         geometry = new ol.geom.Point(data.coord);
